@@ -48,6 +48,9 @@ class VirtualMachine
         void connectOutput(std::queue<uint16_t>* outputQueue);
         void connectInput(std::queue<uint16_t>* inputQueue);
 
+        void connectOutput(std::ostream* outputQueue);
+        void connectInput(std::istream* inputQueue);
+
         bool load(std::vector<uint16_t> codeString);
 
         bool run();
@@ -67,6 +70,9 @@ class VirtualMachine
 
         std::queue<uint16_t>* outputQueue_;
         std::queue<uint16_t>* inputQueue_;
+
+        std::ostream* outputStream_;
+        std::istream* inputStream_;
 
         void opOut(uint16_t i);
 };

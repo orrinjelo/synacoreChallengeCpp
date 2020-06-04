@@ -10,6 +10,8 @@ VirtualMachine::VirtualMachine( uint32_t memSize, uint8_t nRegisters )
     memory_.resize(memSize_);
     outputQueue_ = nullptr;
     inputQueue_ = nullptr;
+    outputStream_ = nullptr;
+    inputStream_ = nullptr;
 }
 
 VirtualMachine::VirtualMachine( std::string stateFile, uint32_t memSize, uint8_t nRegisters )
@@ -83,9 +85,22 @@ void VirtualMachine::connectInput(std::queue<uint16_t>* inputQueue)
     inputQueue_ = inputQueue;
 }
 
+void VirtualMachine::connectOutput(std::ostream* outputStream)
+{
+    outputStream_ = outputStream;
+}
+
+void VirtualMachine::connectInput(std::istream* inputStream)
+{
+    inputStream_ = inputStream;
+}
+
+
 void VirtualMachine::opOut(uint16_t i)
 {
     if (outputQueue_)
         outputQueue_->push(i);
+    if (outputStream_)
+        (*outputStream_) << (char)i;
     std::cout << (char)i;
 }

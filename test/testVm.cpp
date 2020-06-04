@@ -93,7 +93,7 @@ TEST_F(VmUnitTests, testVm_haltAndCatchFire)
     ASSERT_EQ(vm.getState(), VirtualMachine::HCF);
 }
 
-TEST_F(VmUnitTests, testVm_parseOut)
+TEST_F(VmUnitTests, testVm_parseOutQueue)
 {
     std::vector<uint16_t> program = {19, 65, 0};
     
@@ -106,6 +106,20 @@ TEST_F(VmUnitTests, testVm_parseOut)
     ASSERT_EQ(vm.getState(), VirtualMachine::HALTED);
     ASSERT_EQ(outputQueue.size(), 1);
     ASSERT_EQ(outputQueue.front(), 65);
+}
+
+TEST_F(VmUnitTests, testVm_parseOutStream)
+{
+    std::vector<uint16_t> program = {19, 65, 0};
+    
+    VirtualMachine vm;
+    std::stringstream outputStream;
+    vm.connectOutput(&outputStream);
+    vm.load(program);
+    vm.run();
+
+    ASSERT_EQ(vm.getState(), VirtualMachine::HALTED);
+    ASSERT_EQ(outputStream.str(), "A");
 }
 
 int main(int argc, char* argv[])
