@@ -93,6 +93,21 @@ TEST_F(VmUnitTests, testVm_haltAndCatchFire)
     ASSERT_EQ(vm.getState(), VirtualMachine::HCF);
 }
 
+TEST_F(VmUnitTests, testVm_parseOut)
+{
+    std::vector<uint16_t> program = {19, 65, 0};
+    
+    VirtualMachine vm;
+    std::queue<uint16_t> outputQueue;
+    vm.connectOutput(&outputQueue);
+    vm.load(program);
+    vm.run();
+
+    ASSERT_EQ(vm.getState(), VirtualMachine::HALTED);
+    ASSERT_EQ(outputQueue.size(), 1);
+    ASSERT_EQ(outputQueue.front(), 65);
+}
+
 int main(int argc, char* argv[])
 {
     testing::InitGoogleTest(&argc, argv);

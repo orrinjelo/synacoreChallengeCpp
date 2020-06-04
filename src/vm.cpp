@@ -1,4 +1,5 @@
 #include <fstream>
+#include <iostream>
 #include <unistd.h>
 #include "loguru.hpp"
 #include "vm.h"
@@ -7,13 +8,13 @@ VirtualMachine::VirtualMachine( uint32_t memSize, uint8_t nRegisters )
     : memSize_(memSize), nRegisters_(nRegisters), pc_(0), state_(UNSTARTED)
 {
     memory_.resize(memSize_);
+    outputQueue_ = nullptr;
+    inputQueue_ = nullptr;
 }
 
 VirtualMachine::VirtualMachine( std::string stateFile, uint32_t memSize, uint8_t nRegisters )
     : VirtualMachine(memSize, nRegisters)
 {
-    memory_.resize(memSize_);
-
     std::ifstream in(stateFile);
     uint32_t index = 0;
     while (!in.eof())
@@ -46,13 +47,20 @@ bool VirtualMachine::run()
             case HALT:
                 state_ = HALTED;
                 break;
+            case OUT:
+                opOut(memory_[++pc_]);
+                pc_++;
+                break;
             default:
                 LOG_S(ERROR) << "Unknown OP: " << memory_[pc_] << "; PC = " << pc_;
                 pc_++;
         };
 
         if (pc_ >= memSize_)
+        {
             state_ = HCF;
+            LOG_S(ERROR) << "Ran into HCF condition.  End of memory.";
+        }
     }
 
     return true;
@@ -63,4 +71,21 @@ bool VirtualMachine::run(std::vector<uint16_t> codeString)
     load(codeString);
 
     return run();
+}
+
+void VirtualMachine::connectOutput(std::queue<uint16_t>* outputQueue)
+{
+    outputQueue_ = outputQueue;
+}
+
+void VirtualMachine::connectInput(std::queue<uint16_t>* inputQueue)
+{
+    inputQueue_ = inputQueue;
+}
+
+void VirtualMachine::opOut(uint16_t i)
+{
+    if (outputQueue_)
+        outputQueue_->push(i);
+    std::cout << (char)i;
 }
